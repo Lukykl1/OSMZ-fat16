@@ -89,8 +89,13 @@ bool get_entry_by_name(char *filename, Fat16Entry *entry)
     if (entry->filename[0] != 0x00)
     {
       char entry_filename[13];
+      memset(entry_filename, 0, sizeof(entry_filename));
       get_filename(*entry, entry_filename, (entry->attributes & 0x10) > 0);
-      if (memcmp(filename, entry_filename, sizeof(entry_filename)) == 0)
+      /* for (int i = 0; i < 12; i++)
+      {
+        printf("%c-%c ", filename[i], entry_filename[i]);
+      }*/
+      if (strcmp(filename, entry_filename) == 0)
       {
         return true;
       }
@@ -123,6 +128,7 @@ void read_file(char *filename)
   int cluster_left = size_of_cluster;
 
   unsigned char buffer[255];
+  FILE *fp = fopen(filename, "w+");
   while (file_left > 0 && cluster != 0xFFFF)
   {
     int bytes_to_read = sizeof(buffer);
@@ -136,6 +142,7 @@ void read_file(char *filename)
     {
       printf("%c", buffer[i]);
     }
+    fwrite(buffer, bytes_read, sizeof(char), fp);
 
     cluster_left -= bytes_read;
     file_left -= bytes_read;
@@ -222,6 +229,8 @@ int main()
   printf("\n\nreading file TEST.TXT:\n\n");
   read_file("TEST.TXT");
 
+  printf("\n\nreading file FAT16.JPG:\n\n");
+  read_file("FAT16.JPG");
   fclose(in);
   return 0;
 }
