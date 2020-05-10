@@ -57,9 +57,9 @@ bool print_file(Fat16Entry entry, int *file_size)
   char minutes = (entry.modify_time & (0b11111 << 5)) >> 5;
   char seconds = entry.modify_time & (0b1111);
 
-  int year = (entry.modify_time & (0x127 << 11) >> 11) + 1980;
-  int month = (entry.modify_time & (0b1111 << 5)) >> 5;
-  int day = (entry.modify_time & (0b11111));
+  int year = ((entry.modify_date >> 9) & 127) + 1980;
+  int month = (entry.modify_date & (0b1111 << 5)) >> 5;
+  int day = (entry.modify_date & (0b11111));
 
   // Skip if filename was never used, see http://www.tavi.co.uk/phobos/fat.html#file_attributes
   if (entry.filename[0] != 0x00)
