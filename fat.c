@@ -18,6 +18,7 @@ void read_file(char *filename, bool save);
 void init_fs();
 void dir();
 void chdir();
+void print_tree();
 void load_initial_dir();
 
 void get_filename(Fat16Entry entry, char *filename, bool is_subdirectory)
@@ -180,6 +181,7 @@ void read_file(char *filename, bool save)
 void chdir(char *directory)
 {
   Fat16Entry entry;
+  printf("changing to directory %s", directory);
   if (strcmp(directory, ".") == 0)
   {
     return;
@@ -187,7 +189,7 @@ void chdir(char *directory)
   memset(&entry, 0, sizeof(Fat16Entry));
   if (!get_entry_by_name(directory, &entry))
   {
-    printf("file not found!\n");
+    printf("directory not found!\n");
     return;
   }
   unsigned short cluster = entry.starting_cluster;
@@ -261,7 +263,39 @@ void load_initial_dir()
     }
   }
 }
-
+void print_tree_recursive(char *name)
+{
+  chdir(name);
+  dir();
+  char entry_filename[255];
+  bool is_subdirectory = false;
+  for (int i = 0; i < entries; i++)
+  {
+    bool is_directory = (actual_dir[i].attributes & 0x10) > 0;
+    if (is_directory)
+    {
+      get_filename(actual_dir[i], entry_filename, is_directory);
+      if (strcmp(entry_filename, "..") == 0)
+      {
+        is_subdirectory = true;
+      }
+      if (strcmp(entry_filename, "..") == 0 || strcmp(entry_filename, ".") == 0)
+      {
+        continue;
+      }
+      print_tree_recursive(entry_filename);
+    }
+  }
+  if (is_subdirectory)
+  {
+    chdir("..");
+  }
+}
+void print_tree()
+{
+  load_initial_dir();
+  print_tree_recursive(".");
+}
 void init_fs()
 {
   in = fopen("sd.img", "rb");
@@ -294,7 +328,7 @@ void init_fs()
 void dir()
 {
   // Read all entries of root directory
-  printf("Filesystem root directory listing\n-----------------------\n");
+  printf("Filesystem directory listing\n-----------------------\n");
   int files = 0;
   int dirs = 0;
   int file_size = 0;
@@ -321,6 +355,8 @@ int main()
   printf("initialize fs:\n\n");
   init_fs();
 
+  print_tree();
+  /*
   printf("\n\nreading directory:\n\n");
   dir();
 
@@ -360,7 +396,7 @@ int main()
   read_file("HISTORIE.TXT", false);
 
   printf("\n\nreading file KOREN.TXT:\n\n");
-  read_file("KOREN.TXT", false);
+  read_file("KOREN.TXT", false);*/
 
   char line[1024];
   while (true)
