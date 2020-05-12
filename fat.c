@@ -181,7 +181,7 @@ void read_file(char *filename, bool save)
 void chdir(char *directory)
 {
   Fat16Entry entry;
-  printf("changing to directory %s", directory);
+  printf("changing to directory %s\n", directory);
   if (strcmp(directory, ".") == 0)
   {
     return;
@@ -355,8 +355,10 @@ int main()
   printf("initialize fs:\n\n");
   init_fs();
 
+  printf("\n\nPrint tree:\n\n");
   print_tree();
-  /*
+  printf("\n\nEnd of print tree\n\n");
+
   printf("\n\nreading directory:\n\n");
   dir();
 
@@ -396,7 +398,7 @@ int main()
   read_file("HISTORIE.TXT", false);
 
   printf("\n\nreading file KOREN.TXT:\n\n");
-  read_file("KOREN.TXT", false);*/
+  read_file("KOREN.TXT", false);
 
   char line[1024];
   while (true)
